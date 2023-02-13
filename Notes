@@ -1,0 +1,61 @@
+###Cara Rono and Genesis Sibug
+#CS172-Module Project Part 2 
+
+#################################################RUNNING-ZOOKEEPER##############################################################
+## run zookeeper
+bin/zookeeper-server-start.sh config/zookeeper.properties
+
+##run kafka
+JMX_PORT=8004 bin/kafka-server-start.sh config/server.properties
+
+#if zookeper cant run 
+#check first if zookeeper is running
+sudo lsof -i :2181
+
+#output:
+#COMMAND   PID USER   FD   TYPE DEVICE SIZE/OFF NODE NAME
+#java    27666 cara  121u  IPv6 117127      0t0  TCP *:2181 (LISTEN)
+#java    27666 cara  125u  IPv6 123818      0t0  TCP localhost:2181->localhost:42274 (ESTABLISHED)
+#java    28893 cara  123u  IPv6 122814      0t0  TCP localhost:42274->localhost:2181 (ESTABLISHED)
+
+#then kill
+sudo kill -9 27666
+
+#then run zookeper make sure other ports are closed
+JMX_PORT=8004 bin/kafka-server-start.sh config/server.properties
+
+## view topics
+bin/kafka-topics.sh --describe --bootstrap-server localhost:9092
+
+
+
+###############################################RUN-PRODUCER-CONSUMER################################################################
+###Create topic:
+./kafka-topics.sh --create --topic 'hello_world' --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1
+
+
+##Start Producer:
+./kafka-console-producer.sh --topic 'hello_world' --bootstrap-server localhost:9092
+
+##Start Consumer:
+./kafka-console-consumer.sh --topic 'hello_world' --from-beginning --bootstrap-server localhost:9092
+
+
+
+####################################################SETTING-UP-CASSANDRA###########################################################
+#https://www.youtube.com/watch?v=JWLs9oYb5sU
+#create cassandra table --use in terminal
+cqlsh
+CREATE KEYSPACE console WITH replication = {'class': 'NetworkTopologyStrategy', 'replication_factor':'1'} AND durable_writes = 'true';
+
+#view keyspaces made
+DESCRIBE KEYSPACES 
+
+USE console
+##cREATE TABLE
+CREATE TABLE cctv_vehicle_counts (timeuuid_id text PRIMARY KEY, lgu_code text, sensor_id text, data_saved text, time_saved text, total int, car int, bus int, truck int, jeepney int, bike int, tryke int, others int);
+ ## view table 
+ DESCRIBE TABLE cctv_vehicle_counts
+
+
+ 
